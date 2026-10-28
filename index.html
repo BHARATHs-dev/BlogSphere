@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlogSphere - Explore Insights, Stories & Code</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="brand-icon">✦</span>
+        <span>BlogSphere</span>
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="#explore">Explore</a></li>
+        <li><a href="create-blog.html">Write</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navAuthActions">
+        <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-tagline">
+        <span>🚀 Modern Digital Publishing</span>
+      </div>
+
+      <h1>Where Ideas Find Their <span>Curious Minds</span></h1>
+
+      <p class="hero-desc">
+        Discover expert perspectives on technology, UI/UX design, AI architectures, and productivity. Write your own
+        story or dive into community insights.
+      </p>
+
+      <div class="hero-cta">
+        <a href="create-blog.html" class="btn btn-primary btn-lg">Start Writing Today</a>
+        <a href="#explore" class="btn btn-secondary btn-lg">Browse Articles</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <h3>15k+</h3>
+          <p>Active Readers</p>
+        </div>
+
+        <div class="stat-item">
+          <h3>2,400+</h3>
+          <p>Articles Published</p>
+        </div>
+
+        <div class="stat-item">
+          <h3>600+</h3>
+          <p>Global Writers</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search & Filter Controls -->
+  <main class="container" id="explore">
+    <section class="controls-section">
+      <div class="search-filter-card">
+        <div class="search-box-row">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search by title, tag, keywords, or author..."
+              aria-label="Search articles">
+          </div>
+
+          <select id="sortSelect" class="sort-select" aria-label="Sort articles">
+            <option value="latest">Sort: Latest First</option>
+            <option value="popular">Sort: Most Popular</option>
+            <option value="oldest">Sort: Oldest First</option>
+          </select>
+        </div>
+
+        <div class="category-chips">
+          <button class="chip active" data-category="All">All Topics</button>
+          <button class="chip" data-category="Technology">Technology</button>
+          <button class="chip" data-category="Design">Design</button>
+          <button class="chip" data-category="AI & Data">AI & Data</button>
+          <button class="chip" data-category="Lifestyle">Lifestyle</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog Posts Grid -->
+    <section>
+      <div class="section-header">
+        <h2>Trending & Featured Articles</h2>
+        <a href="create-blog.html" class="btn btn-outline btn-sm">+ Create Post</a>
+      </div>
+
+      <div class="blogs-grid" id="blogsGrid">
+        <!-- Dynamically rendered via app.js -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h4>BlogSphere</h4>
+          <p>An open, lightweight, and modern digital platform for creators, developers, designers, and thinkers.</p>
+        </div>
+
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <ul>
+            <li><a href="index.html">Discover</a></li>
+            <li><a href="create-blog.html">Write an Article</a></li>
+            <li><a href="dashboard.html">Creator Dashboard</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Categories</h5>
+          <ul>
+            <li><a href="#explore">Technology</a></li>
+            <li><a href="#explore">Design & UI</a></li>
+            <li><a href="#explore">Artificial Intelligence</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Account</h5>
+          <ul>
+            <li><a href="login.html">Sign In</a></li>
+            <li><a href="register.html">Create Account</a></li>
+            <li><a href="dashboard.html">My Profile</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 BlogSphere. All rights reserved.</div>
+        <div>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+
+</html>

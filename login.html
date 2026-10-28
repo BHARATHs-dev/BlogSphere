@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - BlogSphere</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="brand-icon">✦</span>
+        <span>BlogSphere</span>
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#explore">Explore</a></li>
+        <li><a href="create-blog.html">Write</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navAuthActions">
+        <a href="register.html" class="btn btn-outline btn-sm">Create Account</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login Main Content -->
+  <main class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Welcome Back</h1>
+        <p>Enter your credentials to manage your stories and reader feed.</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label" for="email">Email or Username</label>
+          <input type="text" id="email" class="form-control" placeholder="Enter your email or username" required
+            autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="Enter your password" required
+            autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+          Sign In
+        </button>
+
+        <button type="button" id="fillDemoBtn" class="btn btn-outline btn-block" style="margin-top: 12px;">
+          ⚡ Auto-fill Login (bharaths2205@gmail.com)
+        </button>
+      </form>
+
+      <div class="auth-bottom-switch">
+        Don't have an account yet?
+        <a href="register.html"><strong>Sign up here</strong></a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>© 2026 BlogSphere. All rights reserved.</div>
+        <div>
+          <a href="index.html">Home</a>
+          <a href="register.html">Register</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+
+</html>

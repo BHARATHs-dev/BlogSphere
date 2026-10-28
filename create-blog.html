@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Article - BlogSphere</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="brand-icon">✦</span>
+        <span>BlogSphere</span>
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#explore">Explore</a></li>
+        <li><a href="create-blog.html" class="active">Write</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navAuthActions"></div>
+    </div>
+  </header>
+
+  <!-- Editor Section -->
+  <main class="container">
+    <div class="editor-container">
+      <div class="editor-header">
+        <div>
+          <h1 id="editorPageTitle">Compose New Article</h1>
+          <p>
+            Craft your story, choose a cover, and share it with the BlogSphere community.
+          </p>
+        </div>
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">Discard & Return</a>
+      </div>
+
+      <form id="createBlogForm">
+
+        <!-- Title -->
+        <div class="form-group">
+          <label class="form-label" for="postTitle">Article Title *</label>
+          <input type="text" id="postTitle" class="form-control" placeholder="Enter article title" required>
+        </div>
+
+        <!-- Category & Tags -->
+        <div>
+          <div class="form-group">
+            <label class="form-label" for="postCategory">Category</label>
+            <select id="postCategory" class="form-control">
+              <option value="Technology">Technology</option>
+              <option value="Design">Design</option>
+              <option value="AI & Data">AI & Data</option>
+              <option value="Lifestyle">Lifestyle</option>
+              <option value="Business">Business</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="postTags">Tags (comma separated)</label>
+            <input type="text" id="postTags" class="form-control" placeholder="CSS, Frontend, WebDev">
+          </div>
+        </div>
+
+        <!-- Cover Image -->
+        <div class="form-group">
+          <label class="form-label" for="postCoverImage">Cover Image URL</label>
+          <input type="url" id="postCoverImage" class="form-control" placeholder="Enter cover image URL"
+            value="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80">
+
+          <div>Choose a preset cover image:</div>
+
+          <div class="preset-images-picker">
+            <div class="preset-thumb"
+              onclick="selectPresetCover('https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80')"
+              title="Coding Workspace">
+              <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=150&q=80"
+                alt="Coding">
+            </div>
+
+            <div class="preset-thumb"
+              onclick="selectPresetCover('https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80')"
+              title="Minimal Desk">
+              <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=150&q=80"
+                alt="Desk">
+            </div>
+
+            <div class="preset-thumb"
+              onclick="selectPresetCover('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80')"
+              title="Tech Circuit">
+              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=150&q=80"
+                alt="Tech">
+            </div>
+
+            <div class="preset-thumb"
+              onclick="selectPresetCover('https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80')"
+              title="Writing & Notes">
+              <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=150&q=80"
+                alt="Notes">
+            </div>
+
+            <div class="preset-thumb"
+              onclick="selectPresetCover('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80')"
+              title="Cyber Security">
+              <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=150&q=80"
+                alt="Security">
+            </div>
+          </div>
+        </div>
+
+        <!-- Excerpt -->
+        <div class="form-group">
+          <label class="form-label" for="postExcerpt">Short Excerpt (Summary)</label>
+          <input type="text" id="postExcerpt" class="form-control" placeholder="Write a short summary">
+        </div>
+
+        <!-- Article Content -->
+        <div class="form-group">
+          <label class="form-label" for="postContent">Article Body *</label>
+
+          <div class="editor-tabs">
+            <button type="button" class="editor-tab-btn active" id="writeTabBtn">Write</button>
+            <button type="button" class="editor-tab-btn" id="previewTabBtn">Preview</button>
+          </div>
+
+          <div class="editor-toolbar">
+            <button type="button" class="tool-btn" onclick="insertMarkdown('**', '**')"
+              title="Bold"><strong>B</strong></button>
+            <button type="button" class="tool-btn" onclick="insertMarkdown('*', '*')" title="Italic"><em>I</em></button>
+            <button type="button" class="tool-btn" onclick="insertMarkdown('## ')" title="Heading 2">H2</button>
+            <button type="button" class="tool-btn" onclick="insertMarkdown('### ')" title="Heading 3">H3</button>
+            <button type="button" class="tool-btn" onclick="insertMarkdown('> ')" title="Blockquote">Quote</button>
+            <button type="button" class="tool-btn" onclick="insertMarkdown('`', '`')" title="Inline Code">Code</button>
+            <button type="button" class="tool-btn" onclick="insertMarkdown('```\n', '\n```')" title="Code Block">Code
+              Block</button>
+            <button type="button" class="tool-btn" onclick="insertMarkdown('- ')" title="Bullet List">List</button>
+          </div>
+
+          <textarea id="postContent" class="form-control" rows="12" placeholder="Write your article here..."
+            required></textarea>
+
+          <div id="markdownPreview" class="markdown-preview-box" style="display:none;"></div>
+        </div>
+
+        <!-- Actions -->
+        <div>
+          <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+          <button type="button" id="saveDraftBtn" class="btn btn-outline">Save as Draft</button>
+          <button type="submit" class="btn btn-primary">Publish Article</button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>© 2026 BlogSphere. All rights reserved.</div>
+        <div>
+          <a href="index.html">Home</a>
+          <a href="dashboard.html">Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+
+</html>
