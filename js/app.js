@@ -1,4 +1,5 @@
 // BlogSphere - Application Logic & Storage Manager
+import { registerUser, loginUser, createBlog, getBlogs } from "./api.js";
 
 const USERS_KEY = "blogsphere_users";
 const CURRENT_USER_KEY = "blogsphere_current_user";
@@ -102,7 +103,6 @@ const defaultBlogs = [
 ];
 
 // Sample articles owned by Bharath S (bharaths2205@gmail.com)
-// These appear directly in Bharath's Creator Dashboard and feed.
 const sampleUserBlogs = [
   {
     id: "bharath-blog-1",
@@ -111,7 +111,7 @@ const sampleUserBlogs = [
     tags: ["Architecture", "JavaScript", "FullStack", "WebDev"],
     coverImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80",
     excerpt: "A deep dive into building resilient, modern web architectures with clean component boundaries and zero-dependency designs.",
-    content: "## The Evolution of Web Architecture\n\nBuilding modern web applications requires a disciplined balance between developer velocity and runtime performance. By keeping client bundles lean and embracing native browser capabilities, we can achieve sub-second load times.\n\n### Key Principles\n\n- **Zero-runtime overhead**: Rely on standard web APIs whenever possible.\n- **Component isolation**: Keep styles and states cleanly separated.\n- **Data resilience**: Leverage persistent client storage like `localStorage` and `IndexedDB`.\n\n```javascript\n// Fast, reactive state sync\nfunction syncState(key, data) {\n  localStorage.setItem(key, JSON.stringify(data));\n}\n```\n\nConsistently applying these techniques ensures your application remains fast as it scales.",
+    content: "## The Evolution of Web Architecture\n\nBuilding modern web applications requires a disciplined balance between developer velocity and runtime performance. By keeping client bundles lean and embracing native browser capabilities, we can achieve sub-second load times.",
     author: "bharaths2205",
     date: "2026-10-26T14:30:00.000Z",
     status: "Published",
@@ -125,7 +125,7 @@ const sampleUserBlogs = [
     tags: ["JavaScript", "Performance", "Frontend"],
     coverImage: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=800&q=80",
     excerpt: "Framework fatigue is real. Here is how leveraging native browser APIs, DOM manipulation, and ES6+ features leads to blazing fast applications.",
-    content: "## Returning to the Fundamentals\n\nEvery framework eventually compiles down to Vanilla JavaScript. Understanding the core event loop, DOM diffing, and standard Fetch APIs provides clarity that no library abstraction can match.\n\n### Why Vanilla JS Matters\n\n1. **Zero build friction**: No Webpack, Vite, or Babel required for rapid prototypes.\n2. **Long-term stability**: Web standards don't break with major version upgrades.\n3. **Pure speed**: Zero parsing overhead for heavyweight third-party bundles.",
+    content: "## Returning to the Fundamentals\n\nEvery framework eventually compiles down to Vanilla JavaScript. Understanding the core event loop, DOM diffing, and standard Fetch APIs provides clarity that no library abstraction can match.",
     author: "bharaths2205",
     date: "2026-10-24T09:15:00.000Z",
     status: "Published",
@@ -139,7 +139,7 @@ const sampleUserBlogs = [
     tags: ["CSS", "UI/UX", "DesignSystem", "WebDesign"],
     coverImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80",
     excerpt: "How to craft seamless, accessible light and dark themes using semantic CSS custom properties and smooth transitions.",
-    content: "## The Power of Semantic Tokens\n\nInstead of hardcoding color hex values throughout stylesheets, modern design systems define semantic variables.\n\n```css\n:root {\n  --bg-body: #f8fafc;\n  --text-main: #0f172a;\n  --primary: #4f46e5;\n}\n\n[data-theme='dark'] {\n  --bg-body: #0b0f19;\n  --text-main: #f1f5f9;\n  --primary: #6366f1;\n}\n```\n\nThis makes swapping themes as easy as updating a single attribute on the document root.",
+    content: "## The Power of Semantic Tokens\n\nInstead of hardcoding color hex values throughout stylesheets, modern design systems define semantic variables.",
     author: "bharaths2205",
     date: "2026-10-21T16:45:00.000Z",
     status: "Published",
@@ -153,7 +153,7 @@ const sampleUserBlogs = [
     tags: ["AI", "GenAI", "MachineLearning", "APIs"],
     coverImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
     excerpt: "Practical techniques for connecting client applications to generative AI endpoints with streaming UI feedback.",
-    content: "## Bringing AI to the Browser\n\nAI isn't just for backends and data science teams anymore. With streaming APIs and client-side inference, developers can build responsive, intelligent interfaces that feel magical to end-users.\n\n> The best AI interfaces don't feel like chat bots—they feel like superpowers integrated directly into creative tools.",
+    content: "## Bringing AI to the Browser\n\nAI isn't just for backends and data science teams anymore. With streaming APIs and client-side inference, developers can build responsive, intelligent interfaces that feel magical to end-users.",
     author: "bharaths2205",
     date: "2026-10-18T11:20:00.000Z",
     status: "Published",
@@ -227,7 +227,6 @@ function isAuthorMatch(blog, user) {
 
 // Seed initial sample data & configure default user login
 function seedInitialData() {
-  // 1. Ensure user accounts exist and include bharaths2205@gmail.com
   let users = getData(USERS_KEY);
   if (!Array.isArray(users)) users = [];
 
@@ -243,7 +242,6 @@ function seedInitialData() {
   }
   saveData(USERS_KEY, users);
 
-  // 2. Ensure current session is active for Bharath S if not set or outdated
   const currentUser = getCurrentUser();
   if (
     !currentUser ||
@@ -257,7 +255,6 @@ function seedInitialData() {
     }));
   }
 
-  // 3. Ensure blogs exist and Bharath's sample articles are in storage
   let blogs = getData(BLOGS_KEY);
   if (!Array.isArray(blogs) || blogs.length === 0) {
     blogs = [...defaultBlogs, ...sampleUserBlogs];
@@ -273,13 +270,11 @@ function seedInitialData() {
   }
   saveData(BLOGS_KEY, blogs);
 
-  // 4. Ensure drafts key exists
   if (localStorage.getItem(DRAFTS_KEY) === null) {
     saveData(DRAFTS_KEY, []);
   }
 }
 
-// Run seeding immediately on script load
 seedInitialData();
 
 function showToast(message, type = "info") {
@@ -365,343 +360,318 @@ function updateNavigation() {
   }
 }
 
-// Registration logic
+// 2. Connect the Registration page (Backend API)
 const registerForm = document.getElementById("registerForm");
 
 if (registerForm) {
-  registerForm.addEventListener("submit", event => {
-    event.preventDefault();
+    registerForm.addEventListener("submit", (event) => {
+      event.preventDefault();
 
-    const fullname = document.getElementById("fullname").value.trim();
-    const username = document.getElementById("username").value.trim();
-    const email = document.getElementById("email").value.trim().toLowerCase();
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword") ? document.getElementById("confirmPassword").value : password;
-
-    if (!fullname || !username || !email || !password) {
-      showToast("Please fill in all required fields.", "error");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      showToast("Passwords do not match.", "error");
-      return;
-    }
-
-    const users = getData(USERS_KEY);
-
-    if (users.some(user =>
-      user.email.toLowerCase() === email ||
-      user.username.toLowerCase() === username.toLowerCase()
-    )) {
-      showToast("Email or username already exists.", "error");
-      return;
-    }
-
-    users.push({ fullname, username, email, password });
-    saveData(USERS_KEY, users);
-
-    showToast("Account created successfully! Please sign in.", "success");
-    registerForm.reset();
-
-    setTimeout(() => {
-      location.href = "login.html";
-    }, 700);
-  });
-}
-
-// Login: email or username
-const loginForm = document.getElementById("loginForm");
-
-if (loginForm) {
-  // Setup quick demo fill button
-  const fillDemoBtn = document.getElementById("fillDemoBtn");
-  if (fillDemoBtn) {
-    fillDemoBtn.addEventListener("click", () => {
+      const fullnameInput = document.getElementById("fullname");
+      const usernameInput = document.getElementById("username");
       const emailInput = document.getElementById("email");
       const passwordInput = document.getElementById("password");
-      if (emailInput && passwordInput) {
-        emailInput.value = "bharaths2205@gmail.com";
-        passwordInput.value = "123456";
-        showToast("Credentials filled! Click 'Sign In'.", "info");
+      const confirmPasswordInput = document.getElementById("confirmPassword");
+
+      const fullname = fullnameInput ? fullnameInput.value.trim() : "";
+      const username = usernameInput ? usernameInput.value.trim() : "";
+      const email = emailInput ? emailInput.value.trim().toLowerCase() : "";
+      const password = passwordInput ? passwordInput.value : "";
+      const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : password;
+
+      if (!fullname || !username || !email || !password) {
+        alert("Please fill in all required fields.");
+        return;
       }
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      const userData = {
+        fullname,
+        username,
+        email,
+        password
+      };
+
+      registerUser(userData)
+        .then(data => {
+          alert(data.message);
+          window.location.href = "login.html";
+        })
+        .catch(error => {
+          alert(error.message);
+        });
     });
   }
 
-  loginForm.addEventListener("submit", event => {
-    event.preventDefault();
+// 3. Connect the Login page (Backend API)
+const loginForm = document.getElementById("loginForm");
 
-    const identifier = document.getElementById("email").value.trim().toLowerCase();
-    const password = document.getElementById("password").value;
-
-    const user = getData(USERS_KEY).find(item =>
-      (
-        item.email.toLowerCase() === identifier ||
-        item.username.toLowerCase() === identifier ||
-        (identifier === "bharath" && item.email.toLowerCase() === "bharaths2205@gmail.com")
-      ) && item.password === password
-    );
-
-    if (!user) {
-      showToast("Invalid username, email, or password.", "error");
-      return;
+  if (loginForm) {
+    const fillDemoBtn = document.getElementById("fillDemoBtn");
+    if (fillDemoBtn) {
+      fillDemoBtn.addEventListener("click", () => {
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        if (emailInput && passwordInput) {
+          emailInput.value = "bharaths2205@gmail.com";
+          passwordInput.value = "123456";
+          showToast("Credentials filled! Click 'Sign In'.", "info");
+        }
+      });
     }
 
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({
-      fullname: user.fullname,
-      username: user.username,
-      email: user.email
-    }));
+      loginForm.addEventListener("submit", (event) => {
+        event.preventDefault();
 
-    showToast("Signed in successfully!", "success");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
 
-    setTimeout(() => {
-      location.href = "dashboard.html";
-    }, 400);
-  });
-}
+        const userData = {
+          email: emailInput.value.trim(),
+          password: passwordInput.value
+        };
 
-// Blog creation, editing, and drafts
+        loginUser(userData)
+          .then(data => {
+            localStorage.setItem(
+              "blogsphere_current_user",
+              JSON.stringify(data.user)
+            );
+
+            window.location.href = "dashboard.html";
+          })
+          .catch(error => {
+            alert(error.message);
+          });
+      });
+    }
+
+// 4. Connect Create Blog page (Backend API)
 const createBlogForm = document.getElementById("createBlogForm");
 
-function selectPresetCover(url) {
-  const coverInput = document.getElementById("postCoverImage");
-  if (coverInput) {
-    coverInput.value = url;
-  }
-}
-
-function insertMarkdown(before, after = "") {
-  const textarea = document.getElementById("postContent");
-  if (!textarea) return;
-
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const selected = textarea.value.substring(start, end);
-
-  textarea.setRangeText(
-    before + selected + after,
-    start,
-    end,
-    "select"
-  );
-
-  textarea.focus();
-}
-
-window.selectPresetCover = selectPresetCover;
-window.insertMarkdown = insertMarkdown;
-
-function getBlogFormData() {
-  const user = getCurrentUser();
-
-  return {
-    id: Date.now().toString(),
-    title: document.getElementById("postTitle").value.trim(),
-    category: document.getElementById("postCategory").value,
-    tags: document.getElementById("postTags").value
-      .split(",")
-      .map(tag => tag.trim())
-      .filter(Boolean),
-    coverImage: document.getElementById("postCoverImage").value.trim(),
-    excerpt: document.getElementById("postExcerpt").value.trim(),
-    content: document.getElementById("postContent").value.trim(),
-    author: user ? user.username : "bharaths2205",
-    date: new Date().toISOString(),
-    status: "Published",
-    likes: 0,
-    views: 0
-  };
-}
-
-function loadBlogIntoForm(blog) {
-  document.getElementById("postTitle").value = blog.title || "";
-  document.getElementById("postCategory").value = blog.category || "Technology";
-  document.getElementById("postTags").value = (blog.tags || []).join(", ");
-  document.getElementById("postCoverImage").value = blog.coverImage || "";
-  document.getElementById("postExcerpt").value = blog.excerpt || "";
-  document.getElementById("postContent").value = blog.content || "";
-}
-
-if (createBlogForm) {
-  const user = getCurrentUser();
-
-  if (!user) {
-    location.href = "login.html";
-  } else {
-    const params = new URLSearchParams(location.search);
-    const editId = params.get("edit");
-
-    if (editId) {
-      const blog = getData(BLOGS_KEY).find(item =>
-        item.id === editId && isAuthorMatch(item, user)
-      );
-
-      if (blog) {
-        loadBlogIntoForm(blog);
-
-        const pageTitle = document.getElementById("editorPageTitle");
-        if (pageTitle) pageTitle.textContent = "Edit Article";
+    function selectPresetCover(url) {
+      const coverInput = document.getElementById("postCoverImage");
+      if (coverInput) {
+        coverInput.value = url;
       }
     }
-  }
 
-  createBlogForm.addEventListener("submit", event => {
-    event.preventDefault();
+    function insertMarkdown(before, after = "") {
+      const textarea = document.getElementById("postContent");
+      if (!textarea) return;
 
-    const user = getCurrentUser();
-    if (!user) {
-      location.href = "login.html";
-      return;
-    }
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selected = textarea.value.substring(start, end);
 
-    const blogs = getData(BLOGS_KEY);
-    const params = new URLSearchParams(location.search);
-    const editId = params.get("edit");
-    const blog = getBlogFormData();
-    blog.status = "Published";
-
-    if (editId) {
-      const index = blogs.findIndex(item =>
-        item.id === editId && isAuthorMatch(item, user)
+      textarea.setRangeText(
+        before + selected + after,
+        start,
+        end,
+        "select"
       );
 
-      if (index === -1) {
-        showToast("Article not found.", "error");
-        return;
-      }
-
-      blog.id = blogs[index].id;
-      blog.date = blogs[index].date;
-      blog.likes = blogs[index].likes || 0;
-      blog.views = blogs[index].views || 0;
-      blogs[index] = blog;
-    } else {
-      blogs.push(blog);
+      textarea.focus();
     }
 
-    saveData(BLOGS_KEY, blogs);
-    showToast("Article published successfully!", "success");
+    window.selectPresetCover = selectPresetCover;
+    window.insertMarkdown = insertMarkdown;
 
-    setTimeout(() => {
-      location.href = "dashboard.html";
-    }, 500);
-  });
-
-  const saveDraftBtn = document.getElementById("saveDraftBtn");
-  if (saveDraftBtn) {
-    saveDraftBtn.addEventListener("click", () => {
+    function getBlogFormData() {
       const user = getCurrentUser();
+
+      return {
+        id: Date.now().toString(),
+        title: document.getElementById("postTitle").value.trim(),
+        category: document.getElementById("postCategory").value,
+        tags: document.getElementById("postTags").value
+          .split(",")
+          .map(tag => tag.trim())
+          .filter(Boolean),
+        coverImage: document.getElementById("postCoverImage").value.trim(),
+        excerpt: document.getElementById("postExcerpt").value.trim(),
+        content: document.getElementById("postContent").value.trim(),
+        author: user ? (user.username || user.fullname) : "bharaths2205",
+        date: new Date().toISOString(),
+        status: "Published",
+        likes: 0,
+        views: 0
+      };
+    }
+
+    function loadBlogIntoForm(blog) {
+      document.getElementById("postTitle").value = blog.title || "";
+      document.getElementById("postCategory").value = blog.category || "Technology";
+      document.getElementById("postTags").value = (blog.tags || []).join(", ");
+      document.getElementById("postCoverImage").value = blog.coverImage || "";
+      document.getElementById("postExcerpt").value = blog.excerpt || "";
+      document.getElementById("postContent").value = blog.content || "";
+    }
+
+    if (createBlogForm) {
+      const user = getCurrentUser();
+
       if (!user) {
         location.href = "login.html";
-        return;
-      }
-
-      const draft = getBlogFormData();
-      draft.status = "Draft";
-
-      const blogs = getData(BLOGS_KEY);
-      const params = new URLSearchParams(location.search);
-      const editId = params.get("edit");
-
-      if (editId) {
-        const index = blogs.findIndex(item =>
-          item.id === editId && isAuthorMatch(item, user)
-        );
-        if (index !== -1) {
-          draft.id = blogs[index].id;
-          draft.date = blogs[index].date;
-          draft.likes = blogs[index].likes || 0;
-          draft.views = blogs[index].views || 0;
-          blogs[index] = draft;
-        } else {
-          blogs.push(draft);
-        }
       } else {
-        blogs.push(draft);
+        const params = new URLSearchParams(location.search);
+        const editId = params.get("edit");
+
+        if (editId) {
+          const blog = getData(BLOGS_KEY).find(item =>
+            item.id === editId && isAuthorMatch(item, user)
+          );
+
+          if (blog) {
+            loadBlogIntoForm(blog);
+
+            const pageTitle = document.getElementById("editorPageTitle");
+            if (pageTitle) pageTitle.textContent = "Edit Article";
+          }
+        }
       }
 
-      saveData(BLOGS_KEY, blogs);
-      showToast("Draft saved to your dashboard.", "success");
+        createBlogForm.addEventListener("submit", (event) => {
+          event.preventDefault();
 
-      setTimeout(() => {
-        location.href = "dashboard.html";
-      }, 500);
-    });
-  }
+            const currentUser = JSON.parse(
+              localStorage.getItem("blogsphere_current_user")
+            );
 
-  const writeTabBtn = document.getElementById("writeTabBtn");
-  const previewTabBtn = document.getElementById("previewTabBtn");
-  const postContent = document.getElementById("postContent");
-  const markdownPreview = document.getElementById("markdownPreview");
+            if (!currentUser) {
+              window.location.href = "login.html";
+              return;
+            }
 
-  if (writeTabBtn && previewTabBtn && postContent && markdownPreview) {
-    writeTabBtn.addEventListener("click", () => {
-      postContent.style.display = "block";
-      markdownPreview.style.display = "none";
-      writeTabBtn.classList.add("active");
-      previewTabBtn.classList.remove("active");
-    });
+            const titleInput = document.getElementById("postTitle");
+            const contentInput = document.getElementById("postContent");
+            const categoryInput = document.getElementById("postCategory");
+            const tagsInput = document.getElementById("postTags");
+            const coverImageInput = document.getElementById("postCoverImage");
+            const excerptInput = document.getElementById("postExcerpt");
 
-    previewTabBtn.addEventListener("click", () => {
-      markdownPreview.textContent = postContent.value;
-      markdownPreview.style.whiteSpace = "pre-wrap";
-      postContent.style.display = "none";
-      markdownPreview.style.display = "block";
-      previewTabBtn.classList.add("active");
-      writeTabBtn.classList.remove("active");
-    });
-  }
-}
+              const blogData = {
+                title: titleInput ? titleInput.value.trim() : "",
+                content: contentInput ? contentInput.value.trim() : "",
+                category: categoryInput ? categoryInput.value : "Technology",
+                tags: tagsInput ? tagsInput.value.split(",").map(t => t.trim()).filter(Boolean) : [],
+                coverImage: coverImageInput ? coverImageInput.value.trim() : "",
+                excerpt: excerptInput ? excerptInput.value.trim() : "",
+                author: currentUser.username || currentUser.fullname || "bharaths2205"
+              };
 
-// Home page: display, search, filter, and sort blogs
-function renderBlogs() {
-  const blogsGrid = document.getElementById("blogsGrid");
-  if (!blogsGrid) return;
+            createBlog(blogData)
+              .then(data => {
+                alert(data.message);
+                window.location.href = "dashboard.html";
+              })
+              .catch(error => {
+                alert(error.message);
+              });
+          });
 
-  const user = getCurrentUser();
-  const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
-  const sort = document.getElementById("sortSelect")?.value || "latest";
+        const saveDraftBtn = document.getElementById("saveDraftBtn");
+        if (saveDraftBtn) {
+          saveDraftBtn.addEventListener("click", () => {
+            const user = getCurrentUser();
+            if (!user) {
+              location.href = "login.html";
+              return;
+            }
 
-  const activeChip = document.querySelector(".category-chips .chip.active");
-  const category = activeChip?.dataset.category || "All";
+            const draft = getBlogFormData();
+            draft.status = "Draft";
 
-  let blogs = getData(BLOGS_KEY).filter(blog =>
-    blog.status === "Published"
-  );
+            const drafts = getData(DRAFTS_KEY);
+            drafts.push(draft);
+            saveData(DRAFTS_KEY, drafts);
+            showToast("Draft saved successfully.", "success");
+          });
+        }
 
-  blogs = blogs.filter(blog => {
-    const searchable = [
-      blog.title,
-      blog.excerpt,
-      blog.content,
-      blog.author,
-      ...(blog.tags || [])
-    ].join(" ").toLowerCase();
+        const writeTabBtn = document.getElementById("writeTabBtn");
+        const previewTabBtn = document.getElementById("previewTabBtn");
+        const postContent = document.getElementById("postContent");
+        const markdownPreview = document.getElementById("markdownPreview");
 
-    return searchable.includes(search) &&
-      (category === "All" || blog.category === category);
-  });
+        if (writeTabBtn && previewTabBtn && postContent && markdownPreview) {
+          writeTabBtn.addEventListener("click", () => {
+            postContent.style.display = "block";
+            markdownPreview.style.display = "none";
+            writeTabBtn.classList.add("active");
+            previewTabBtn.classList.remove("active");
+          });
 
-  if (sort === "popular") {
-    blogs.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-  } else if (sort === "oldest") {
-    blogs.sort((a, b) => new Date(a.date) - new Date(b.date));
-  } else {
-    blogs.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
+          previewTabBtn.addEventListener("click", () => {
+            markdownPreview.textContent = postContent.value;
+            markdownPreview.style.whiteSpace = "pre-wrap";
+            postContent.style.display = "none";
+            markdownPreview.style.display = "block";
+            previewTabBtn.classList.add("active");
+            writeTabBtn.classList.remove("active");
+          });
+        }
+      }
 
-  if (blogs.length === 0) {
-    blogsGrid.innerHTML = `
+          // 5. Load blogs from backend (Home Feed)
+          async function renderBlogs() {
+            const blogsGrid = document.getElementById("blogsGrid");
+            if (!blogsGrid) return;
+
+            const user = getCurrentUser();
+            const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
+            const sort = document.getElementById("sortSelect")?.value || "latest";
+
+            const activeChip = document.querySelector(".category-chips .chip.active");
+            const category = activeChip?.dataset.category || "All";
+
+            let blogs = [];
+
+            try {
+              const data = await getBlogs();
+              const serverBlogs = data.blogs || data.data || [];
+              blogs = serverBlogs.filter(blog => (blog.status || "Published") === "Published");
+            } catch (error) {
+              console.log("Could not load blogs from backend, using localStorage fallback:", error.message);
+              blogs = getData(BLOGS_KEY).filter(blog => blog.status === "Published");
+            }
+
+            blogs = blogs.filter(blog => {
+              const searchable = [
+                blog.title,
+                blog.excerpt,
+                blog.content,
+                blog.author,
+                ...(blog.tags || [])
+              ].join(" ").toLowerCase();
+
+              return searchable.includes(search) &&
+                (category === "All" || blog.category === category);
+            });
+
+            if (sort === "popular") {
+              blogs.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+            } else if (sort === "oldest") {
+              blogs.sort((a, b) => new Date(a.date || a.createdAt) - new Date(b.date || b.createdAt));
+            } else {
+              blogs.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+            }
+
+            if (blogs.length === 0) {
+              blogsGrid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
         <p style="font-size: 16px; color: var(--text-secondary); margin-bottom: 12px;">No articles match your search or filter.</p>
         <button class="btn btn-outline btn-sm" onclick="document.getElementById('searchInput').value=''; document.querySelector('.category-chips .chip[data-category=\\'All\\']').click();">Reset Filters</button>
       </div>
     `;
-    return;
-  }
+              return;
+            }
 
-  blogsGrid.innerHTML = blogs.map(blog => `
+            blogsGrid.innerHTML = blogs.map(blog => `
     <article class="blog-card">
       <img
         src="${escapeHTML(blog.coverImage || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80')}"
@@ -713,78 +683,87 @@ function renderBlogs() {
         <p class="blog-card-category">${escapeHTML(blog.category)}</p>
         <h3>${escapeHTML(blog.title)}</h3>
         <p class="blog-card-excerpt">${escapeHTML(blog.excerpt)}</p>
-        <p class="blog-card-meta">By <strong>${escapeHTML(blog.author === 'bharaths2205' ? 'Bharath S' : blog.author)}</strong> · ${formatDate(blog.date)} · ❤️ ${blog.likes || 0}</p>
+        <p class="blog-card-meta">By <strong>${escapeHTML(blog.author === 'bharaths2205' ? 'Bharath S' : blog.author)}</strong> · ${formatDate(blog.date || blog.createdAt)} · ❤️ ${blog.likes || 0}</p>
         ${user ?
-          `<a href="dashboard.html" class="btn btn-primary btn-sm">Manage on Dashboard</a>` :
-          `<a href="login.html" class="btn btn-primary btn-sm">Sign In to Read</a>`
-        }
+                `<a href="dashboard.html" class="btn btn-primary btn-sm">Manage on Dashboard</a>` :
+                `<a href="login.html" class="btn btn-primary btn-sm">Sign In to Read</a>`
+              }
       </div>
     </article>
   `).join("");
-}
+          }
 
-document.getElementById("searchInput")?.addEventListener("input", renderBlogs);
-document.getElementById("sortSelect")?.addEventListener("change", renderBlogs);
+          document.getElementById("searchInput")?.addEventListener("input", renderBlogs);
+          document.getElementById("sortSelect")?.addEventListener("change", renderBlogs);
 
-document.querySelectorAll(".category-chips .chip").forEach(chip => {
-  chip.addEventListener("click", () => {
-    document.querySelectorAll(".category-chips .chip").forEach(item =>
-      item.classList.remove("active")
-    );
+          document.querySelectorAll(".category-chips .chip").forEach(chip => {
+            chip.addEventListener("click", () => {
+              document.querySelectorAll(".category-chips .chip").forEach(item =>
+                item.classList.remove("active")
+              );
 
-    chip.classList.add("active");
-    renderBlogs();
-  });
-});
+              chip.classList.add("active");
+              renderBlogs();
+            });
+          });
 
-// Creator Dashboard
-function renderDashboard() {
-  const tableBody = document.getElementById("userPostsTableBody");
-  if (!tableBody) return;
+            // 5. Load blogs from backend (Creator Dashboard)
+            async function renderDashboard() {
+              const tableBody = document.getElementById("userPostsTableBody");
+              if (!tableBody) return;
 
-  const user = getCurrentUser();
+              const user = getCurrentUser();
 
-  if (!user) {
-    location.href = "login.html";
-    return;
-  }
+              if (!user) {
+                location.href = "login.html";
+                return;
+              }
 
-  const blogs = getData(BLOGS_KEY).filter(blog =>
-    isAuthorMatch(blog, user)
-  );
+              let blogs = [];
 
-  const totalPosts = document.getElementById("statTotalPosts");
-  const totalLikes = document.getElementById("statTotalLikes");
-  const totalViews = document.getElementById("statTotalViews");
-  const profileDetails = document.getElementById("userProfileDetails");
+              // Fetch blogs from backend with fallback
+              try {
+                const data = await getBlogs();
+                console.log("Blogs:", data.blogs);
+                const serverBlogs = data.blogs || data.data || [];
+                blogs = serverBlogs.filter(blog => isAuthorMatch(blog, user));
+              } catch (error) {
+                console.log(error.message);
+                blogs = getData(BLOGS_KEY).filter(blog => isAuthorMatch(blog, user));
+              }
 
-  if (totalPosts) totalPosts.textContent = blogs.length;
+              const totalPosts = document.getElementById("statTotalPosts");
+              const totalLikes = document.getElementById("statTotalLikes");
+              const totalViews = document.getElementById("statTotalViews");
+              const profileDetails = document.getElementById("userProfileDetails");
 
-  if (totalLikes) {
-    totalLikes.textContent = blogs.reduce(
-      (sum, blog) => sum + (blog.likes || 0), 0
-    );
-  }
+              if (totalPosts) totalPosts.textContent = blogs.length;
 
-  if (totalViews) {
-    totalViews.textContent = blogs.reduce(
-      (sum, blog) => sum + (blog.views || 0), 0
-    );
-  }
+              if (totalLikes) {
+                totalLikes.textContent = blogs.reduce(
+                  (sum, blog) => sum + (blog.likes || 0), 0
+                );
+              }
 
-  if (profileDetails) {
-    const initial = (user.fullname || user.username || "B").charAt(0).toUpperCase();
-    profileDetails.innerHTML = `
+              if (totalViews) {
+                totalViews.textContent = blogs.reduce(
+                  (sum, blog) => sum + (blog.views || 0), 0
+                );
+              }
+
+              if (profileDetails) {
+                const initial = (user.fullname || user.username || "B").charAt(0).toUpperCase();
+                profileDetails.innerHTML = `
       <div class="profile-avatar-lg">${escapeHTML(initial)}</div>
       <div class="profile-details">
         <h1>${escapeHTML(user.fullname || user.username)}</h1>
-        <p>${escapeHTML(user.email)} · @${escapeHTML(user.username)}</p>
+        <p>${escapeHTML(user.email || "")} · @${escapeHTML(user.username || "")}</p>
       </div>
     `;
-  }
+              }
 
-  if (blogs.length === 0) {
-    tableBody.innerHTML = `
+              if (blogs.length === 0) {
+                tableBody.innerHTML = `
       <tr>
         <td colspan="5" style="text-align: center; padding: 36px;">
           <p style="margin-bottom: 12px; color: var(--text-secondary);">You haven't published any articles yet.</p>
@@ -792,18 +771,17 @@ function renderDashboard() {
         </td>
       </tr>
     `;
-    return;
-  }
+                return;
+              }
 
-  // Sort user's blogs newest first
-  const sortedBlogs = [...blogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+              const sortedBlogs = [...blogs].sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
 
-  tableBody.innerHTML = sortedBlogs.map(blog => `
+              tableBody.innerHTML = sortedBlogs.map(blog => `
     <tr>
       <td><strong>${escapeHTML(blog.title)}</strong></td>
       <td>${escapeHTML(blog.category)}</td>
       <td><span class="status-badge ${(blog.status || 'Published').toLowerCase()}">${escapeHTML(blog.status || 'Published')}</span></td>
-      <td>${formatDate(blog.date)}</td>
+      <td>${formatDate(blog.date || blog.createdAt)}</td>
       <td>
         <div class="table-actions">
           <a href="create-blog.html?edit=${encodeURIComponent(blog.id)}" class="btn btn-outline btn-sm">Edit</a>
@@ -813,22 +791,22 @@ function renderDashboard() {
     </tr>
   `).join("");
 
-  tableBody.querySelectorAll("[data-delete-blog]").forEach(button => {
-    button.addEventListener("click", () => {
-      const blogId = button.dataset.deleteBlog;
-      if (!confirm("Are you sure you want to permanently delete this article?")) return;
+              tableBody.querySelectorAll("[data-delete-blog]").forEach(button => {
+                button.addEventListener("click", () => {
+                  const blogId = button.dataset.deleteBlog;
+                  if (!confirm("Are you sure you want to permanently delete this article?")) return;
 
-      const currentBlogs = getData(BLOGS_KEY);
-      const filtered = currentBlogs.filter(blog => blog.id !== blogId);
-      saveData(BLOGS_KEY, filtered);
+                  const currentBlogs = getData(BLOGS_KEY);
+                  const filtered = currentBlogs.filter(blog => blog.id !== blogId);
+                  saveData(BLOGS_KEY, filtered);
 
-      showToast("Article deleted successfully.", "info");
-      renderDashboard();
-    });
-  });
-}
+                  showToast("Article deleted successfully.", "info");
+                  renderDashboard();
+                });
+              });
+            }
 
-// Initialize the current page components
-updateNavigation();
-renderBlogs();
-renderDashboard();
+            // Initialize the current page components
+            updateNavigation();
+            renderBlogs();
+            renderDashboard();
