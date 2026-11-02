@@ -80,18 +80,6 @@ npx serve .
 
 ---
 
-## 🔑 Demo Account Credentials
-
-A pre-seeded demo user is provided for instant testing:
-
-- **Email**: `bharaths2205@gmail.com`
-- **Username**: `bharaths2205`
-- **Password**: `123456`
-
-*(You can also click **"Fill Demo Credentials"** on `login.html` to auto-fill these values.)*
-
----
-
 ## 🛠️ Technology Stack
 
 - **HTML5**: Semantic tags (`<header>`, `<main>`, `<section>`, `<article>`, `<footer>`).
